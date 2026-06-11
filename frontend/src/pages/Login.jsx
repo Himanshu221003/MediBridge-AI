@@ -15,13 +15,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showWarmupNotice, setShowWarmupNotice] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setShowWarmupNotice(false);
+
+    const timer = setTimeout(() => {
+      setShowWarmupNotice(true);
+    }, 2500);
 
     const result = await login(email, password);
+
+    clearTimeout(timer);
+    setShowWarmupNotice(false);
 
     if (result.success) {
       navigate('/');
@@ -107,6 +116,13 @@ const Login = () => {
             >
               {loading ? t('loading') : t('login')}
             </button>
+
+            {showWarmupNotice && (
+              <div className="p-3.5 bg-healthcare-50 dark:bg-healthcare-950/20 border border-healthcare-100 dark:border-healthcare-900/40 rounded-xl text-xs text-healthcare-750 dark:text-healthcare-400 leading-relaxed">
+                <span className="font-bold block mb-1">💡 Waking up database server...</span>
+                Since our server is hosted on a free tier, it spins down after 15 minutes of inactivity. First login takes about 50 seconds. Thank you for your patience!
+              </div>
+            )}
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-650 dark:text-navy-300">

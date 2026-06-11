@@ -18,11 +18,13 @@ const Signup = () => {
   const [languagePreference, setLanguagePreference] = useState('en');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showWarmupNotice, setShowWarmupNotice] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setShowWarmupNotice(false);
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long.');
@@ -31,7 +33,14 @@ const Signup = () => {
       return;
     }
 
+    const timer = setTimeout(() => {
+      setShowWarmupNotice(true);
+    }, 2500);
+
     const result = await signup(name, email, password, role, languagePreference);
+
+    clearTimeout(timer);
+    setShowWarmupNotice(false);
 
     if (result.success) {
       navigate('/');
@@ -157,6 +166,13 @@ const Signup = () => {
             >
               {loading ? t('loading') : t('signup')}
             </button>
+
+            {showWarmupNotice && (
+              <div className="p-3.5 bg-healthcare-50 dark:bg-healthcare-950/20 border border-healthcare-100 dark:border-healthcare-900/40 rounded-xl text-xs text-healthcare-750 dark:text-healthcare-400 leading-relaxed mt-4">
+                <span className="font-bold block mb-1">💡 Waking up database server...</span>
+                Since our server is hosted on a free tier, it spins down after 15 minutes of inactivity. First sign-up takes about 50 seconds. Thank you for your patience!
+              </div>
+            )}
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-650 dark:text-navy-300">

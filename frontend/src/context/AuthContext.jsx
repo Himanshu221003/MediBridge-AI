@@ -6,6 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  const [serverWakingUp, setServerWakingUp] = useState(false);
 
   // Endpoint configuration
   const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
@@ -16,6 +17,10 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
+
+      const wakeupTimer = setTimeout(() => {
+        setServerWakingUp(true);
+      }, 1500);
 
       try {
         const res = await fetch(`${API_URL}/auth/me`, {
@@ -34,6 +39,8 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error fetching user profile:', error);
       } finally {
+        clearTimeout(wakeupTimer);
+        setServerWakingUp(false);
         setLoading(false);
       }
     };
@@ -119,7 +126,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateProfile, API_URL }}>
+    <AuthContext.Provider value={{ user, token, loading, serverWakingUp, login, signup, logout, updateProfile, API_URL }}>
       {children}
     </AuthContext.Provider>
   );
